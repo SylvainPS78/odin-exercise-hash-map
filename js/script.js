@@ -26,9 +26,29 @@ class HashMap {
         bucket[i][1] = value;
         return;
       }
+    }
 
-      bucket.push([key, value]);
-      this.size++;
+    bucket.push([key, value]);
+    this.size++;
+
+    if (this.size > this.capacity * this.loadFactor) {
+      this._resize();
+    }
+  }
+
+  _resize() {
+    const oldBuckets = this.buckets;
+    this.capacity *= 2;
+
+    this.buckets = new Array(this.capacity).fill(null).map(() => []);
+
+    for (let i = 0; i < oldBuckets.length; i++) {
+      const bucket = oldBuckets[i];
+      for (let j = 0; j < bucket.length; j++) {
+        const item = bucket[j];
+        const newIndex = this.hash(item[0]);
+        this.buckets[newIndex].push(item);
+      }
     }
   }
 
@@ -97,5 +117,33 @@ class HashMap {
     }
 
     return allKeys;
+  }
+
+  values() {
+    let allValues = [];
+
+    for (let i = 0; i < this.buckets.length; i++) {
+      const bucket = this.buckets[i];
+
+      for (let j = 0; j < bucket.length; j++) {
+        allValues.push(bucket[j][1]);
+      }
+    }
+
+    return allValues;
+  }
+
+  entries() {
+    let allEntries = [];
+
+    for (let i = 0; i < this.buckets.length; i++) {
+      const bucket = this.buckets[i];
+
+      for (let j = 0; j < bucket.length; j++) {
+        allEntries.push(bucket[j]);
+      }
+    }
+
+    return allEntries;
   }
 }
